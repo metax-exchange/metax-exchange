@@ -23,7 +23,7 @@ public class RateLimitAdapter {
      */
     public static RateLimiter rateLimiter(RateLimiterRegistry rateLimiterRegistry, String name, final Duration limitRefreshPeriod, final int limitForPeriod, final Duration timeoutDuration) {
         Assert.notNull(rateLimiterRegistry, "rateLimiterRegistry is not null");
-        RateLimiter rateLimiter = StreamUtils.findSingletonBy(rateLimiterRegistry.getAllRateLimiters(), RateLimiter::getName, name);
+        RateLimiter rateLimiter = StreamUtils.findSingleByKey(rateLimiterRegistry.getAllRateLimiters(), RateLimiter::getName, name);
         if (Objects.isNull(rateLimiter)) {
             return rateLimiterRegistry.rateLimiter(name, RateLimiterConfig.custom().limitRefreshPeriod(limitRefreshPeriod) // 刷新令牌周期
                     .limitForPeriod(limitForPeriod)// 令牌桶容量

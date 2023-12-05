@@ -12,7 +12,7 @@ import java.util.Objects;
 
 public class BinanceExchange extends BaseExchange {
 
-    private final static RateLimiterRegistry RATE_LIMITER_REGISTRY = BinanceRateLimiter.createRateLimiterRegistry();
+    public final static RateLimiterRegistry RATE_LIMITER_REGISTRY = BinanceRateLimiter.createRateLimiterRegistry();
 
     public BinanceExchange(@NonNull ExchangeSpecification exchangeSpecification) {
         super(exchangeSpecification, RATE_LIMITER_REGISTRY);

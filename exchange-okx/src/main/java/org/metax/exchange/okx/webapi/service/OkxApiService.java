@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -50,12 +51,13 @@ public abstract class OkxApiService implements ApiService {
         ExchangeSpecification.ApiSecret apiSecret = exchangeSpecification.getApiSecret();
         this.apiKey = Objects.nonNull(apiSecret) ? apiSecret.getApiKey() : null;
         this.secretKey = Objects.nonNull(apiSecret) ? apiSecret.getSecretKey() : null;
-        this.passphrase = CollectionUtils.isEmpty(exchangeSpecification.getParameterMap()) ? null : (String) exchangeSpecification.getParameterMap().get("passphrase");
+        Map parameterMap = exchangeSpecification.getParameterMap();
+        this.passphrase = CollectionUtils.isEmpty(parameterMap) ? null : (String) parameterMap.get("passphrase");
         this.rateLimiterRegistry = rateLimiterRegistry;
         ExchangeSpecification.ResilienceSpecification resilienceSpecification = exchangeSpecification.getResilienceSpecification();
         RateLimitCallAdapterFactory rateLimitCallAdapterFactory = new RateLimitCallAdapterFactory(resilienceSpecification.isEnabledRateLimiter(), rateLimiterRegistry);
         FastJsonConverterFactory fastJsonConverterFactory = FastJsonConverterFactory.create();
-        this.okxApi = new Retrofit.Builder().baseUrl(Constant.REST_API_BASE_URL).addCallAdapterFactory(rateLimitCallAdapterFactory).addConverterFactory(fastJsonConverterFactory).build().create(OkxApi.class);
+        this.okxApi = new Retrofit.Builder().baseUrl(CollectionUtils.isEmpty(parameterMap) || Objects.isNull(parameterMap.get("REST_API_BASE_URL")) ? Constant.REST_API_BASE_URL : (String) parameterMap.get("REST_API_BASE_URL")).addCallAdapterFactory(rateLimitCallAdapterFactory).addConverterFactory(fastJsonConverterFactory).build().create(OkxApi.class);
     }
 
     @Override

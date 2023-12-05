@@ -2,6 +2,7 @@ package org.metax.exchange.binance;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import org.metax.exchange.binance.dto.marketdata.BinanceExchangeInfo;
 import org.metax.exchange.binance.dto.marketdata.BinanceKline;
 import org.metax.exchange.binance.enums.BinanceInstType;
 import org.metax.exchange.binance.webapi.service.BinanceMarketDataService;
@@ -16,7 +17,6 @@ import org.metax.exchange.core.websocket.callback.WebSocketMessageCallback;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,7 +38,12 @@ public class BinanceWebApiTest {
     @Test
     public void exchangeInfo() throws IOException {
         BinanceMarketDataService binanceMarketDataService = (BinanceMarketDataService) binanceExchange.getApiService();
-        System.out.println(binanceMarketDataService.getExchangeInfo(BinanceInstType.SPOT));
+        binanceMarketDataService.getExchangeInfo(BinanceInstType.SPOT);
+        List<BinanceExchangeInfo.Symbol> symbolList =
+                binanceMarketDataService.getSymbolsByCurrencyPairs(List.of(new CurrencyPair("BTC/USDT"),
+                        new CurrencyPair("ETH/USDT")
+                ));
+        System.out.println(symbolList);
     }
 
     @Test

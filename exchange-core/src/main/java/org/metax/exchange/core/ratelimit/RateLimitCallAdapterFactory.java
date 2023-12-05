@@ -40,7 +40,7 @@ public class RateLimitCallAdapterFactory extends CallAdapter.Factory {
         // 添加对 annotations 的非空检查
         if (enabledRateLimiter && Objects.nonNull(annotations)) {
             Assert.notNull(rateLimiterRegistry, "If rate limiting is enabled, the rateLimiterRegistry cannot be empty.");
-            RateLimit rateLimit = (RateLimit) StreamUtils.findSingletonBy(Arrays.stream(annotations).toList(), Annotation::annotationType, RateLimit.class);
+            RateLimit rateLimit = (RateLimit) StreamUtils.findSingleByKey(Arrays.stream(annotations).toList(), Annotation::annotationType, RateLimit.class);
             if (Objects.nonNull(rateLimit) && StringUtils.hasText(rateLimit.name())) {
                 Type responseType = getParameterUpperBound(0, (ParameterizedType) returnType);
                 return new RateLimitCallAdapter<>(responseType, rateLimiterRegistry, rateLimit);
@@ -59,7 +59,7 @@ public class RateLimitCallAdapterFactory extends CallAdapter.Factory {
                 if (rateLimit.permits() <= 0) {
                     return call;
                 } else {
-                    RateLimiter rateLimiter = StreamUtils.findSingletonBy(rateLimiterRegistry.getAllRateLimiters(), RateLimiter::getName, rateLimit.name());
+                    RateLimiter rateLimiter = StreamUtils.findSingleByKey(rateLimiterRegistry.getAllRateLimiters(), RateLimiter::getName, rateLimit.name());
                     Supplier<Call<R>> supplier = RateLimiter.decorateSupplier(rateLimiter, rateLimit.permits(), () -> call);
                     return supplier.get();
                 }

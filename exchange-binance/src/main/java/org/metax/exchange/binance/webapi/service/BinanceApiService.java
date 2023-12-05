@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.metax.exchange.binance.BinanceParamAdapter;
 import org.metax.exchange.binance.Constant;
 import org.metax.exchange.binance.dto.marketdata.BinanceExchangeInfo;
 import org.metax.exchange.binance.dto.marketdata.BinanceFuturesExchangeInfo;
@@ -17,6 +18,7 @@ import org.metax.exchange.core.currency.CurrencyPair;
 import org.metax.exchange.core.dto.marketdata.ServerTime;
 import org.metax.exchange.core.exception.*;
 import org.metax.exchange.core.ratelimit.RateLimitCallAdapterFactory;
+import org.metax.exchange.core.util.StreamUtils;
 import org.metax.exchange.core.webapi.ApiService;
 import org.springframework.util.CollectionUtils;
 import retrofit2.Call;
@@ -38,6 +40,7 @@ public abstract class BinanceApiService implements ApiService {
     protected final BinanceApi binanceApi;
 
     protected final BinanceFuturesApi binanceFuturesApi;
+
 
     public BinanceApiService(@NonNull ExchangeSpecification exchangeSpecification, @NonNull RateLimiterRegistry rateLimiterRegistry) {
         // set apiKey
@@ -63,6 +66,16 @@ public abstract class BinanceApiService implements ApiService {
     public ServerTime time(Object... args) throws IOException {
         BinanceInstType binanceInstType = (args.length == 0 ? BinanceInstType.SPOT : (BinanceInstType) args[0]);
         return execute(Objects.equals(BinanceInstType.FUTURES, binanceInstType) ? binanceFuturesApi.time() : binanceApi.time());
+    }
+
+    public BinanceExchangeInfo.Symbol getSymbolByCurrencyPair(CurrencyPair currencyPair) throws IOException {
+        return getSymbolsByCurrencyPairs(List.of(currencyPair)).stream().collect(StreamUtils.singletonCollector());
+    }
+
+    public List<BinanceExchangeInfo.Symbol> getSymbolsByCurrencyPairs(List<CurrencyPair> currencyPairs) throws IOException {
+        List<String> symbols = currencyPairs.stream().map(currencyPair -> BinanceParamAdapter.toSymbol(currencyPair)).toList();
+        BinanceExchangeInfo exchangeInfo = execute(binanceApi.exchangeInfo());
+        return StreamUtils.filterByKeys(exchangeInfo.getSymbols(), BinanceExchangeInfo.Symbol::getSymbol, symbols);
     }
 
     public Object getExchangeInfo(BinanceInstType binanceInstType) throws IOException {

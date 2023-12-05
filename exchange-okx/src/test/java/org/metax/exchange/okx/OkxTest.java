@@ -11,6 +11,7 @@ import org.metax.exchange.okx.enums.OkxInstType;
 import org.metax.exchange.okx.webapi.service.OkxMarketDataService;
 
 import java.io.IOException;
+import java.util.List;
 
 public class OkxTest {
 
@@ -60,7 +61,8 @@ public class OkxTest {
     @Test
     public void markPrice() throws IOException {
         OkxMarketDataService marketDataService = (OkxMarketDataService) okxExchange.getApiService();
-        FuturesCurrencyPair futuresCurrencyPair = new FuturesCurrencyPair("BTC-USD-231124", OkxInstType.FUTURES);
+        List<CurrencyPair> currencyPairList = marketDataService.getCurrencyPairList(OkxInstType.FUTURES);
+        FuturesCurrencyPair futuresCurrencyPair = (FuturesCurrencyPair) currencyPairList.get(0);
         System.out.println(marketDataService.getMarkPrice(futuresCurrencyPair));
     }
 
